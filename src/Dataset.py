@@ -68,3 +68,32 @@ def get_dataset(csv_path, train_dir):
     dataset = build_dataset(img_path, img_label)
     return dataset
 
+def build_multiple_tf_records(csv_path, train_dir):
+    '''Build multiple tf record files
+    
+    :param csv_path: Path to labels csv
+    :type csv_path: String
+    :param train_dir: Training directory
+    :type train_dir: String
+    '''
+    img_label_df = pd.read_csv(csv_path)
+    img_path, img_label = get_file_path_labels(img_label_df, train_dir)
+    idx = 0
+    base_file = 'hist_rec_'
+    suffix = '.tfrec'
+    count = 1
+    while True:
+        tfrec_file_name = base_file + str(count) + suffix
+        if idx >= len(all_img_path):
+            break
+        with tf.compat.v1.python_io.TFRecordWriter(tfrec_file_name) as writer:
+            while idx < len(all_img_path):
+                path = all_img_path[idx]
+                label = all_img_labels[idx]
+                example = get_img_example(path, label)
+                writer.write(example.SerializeToString())
+                idx += 1
+                if idx > 0 and idx % 10000 == 0:
+                    count += 1
+                    break
+    
