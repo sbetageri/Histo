@@ -30,9 +30,9 @@ def get_file_path_labels(id_label_df, train_dir):
     train_dir = pathlib.Path(train_dir)
     img_label = []
     img_path = []
-    for i in tqmd(train_dir.glob('*.tif')):
+    for i in tqdm(train_dir.glob('*.tif')):
         img_id = i.stem
-        label = id_label_df[id_label_df[id] == img_id]['label'].values[0]
+        label = id_label_df[id_label_df['id'] == img_id]['label'].values[0]
         img_label.append(label)
         img_path.append(str(i.resolve()))
     return img_path, img_label
@@ -68,6 +68,22 @@ def get_dataset(csv_path, train_dir):
     dataset = build_dataset(img_path, img_label)
     return dataset
 
+def _bytes_feature(value):
+  """Returns a bytes_list from a string / byte."""
+  return tf.train.Feature(bytes_list=tf.train.BytesList(value=[value]))
+
+def _int64_feature(value):
+  """Returns an int64_list from a bool / enum / int / uint."""
+  return tf.train.Feature(int64_list=tf.train.Int64List(value=[value]))
+  
+def get_img_example(img_path, img_label):
+    img_str = open(img_path, 'rb').read()
+    feature = {
+        'img' : _bytes_feature(img_str),
+        'label' : _int64_feature(img_label)
+    }
+    return tf.train.Example(features=tf.train.Features(feature=feature))
+
 def build_multiple_tf_records(csv_path, train_dir):
     '''Build multiple tf record files
     
@@ -77,19 +93,19 @@ def build_multiple_tf_records(csv_path, train_dir):
     :type train_dir: String
     '''
     img_label_df = pd.read_csv(csv_path)
-    img_path, img_label = get_file_path_labels(img_label_df, train_dir)
+    img_path, img_labels = get_file_path_labels(img_label_df, train_dir)
     idx = 0
     base_file = 'hist_rec_'
     suffix = '.tfrec'
     count = 1
     while True:
-        tfrec_file_name = base_file + str(count) + suffix
-        if idx >= len(all_img_path):
+        if idx >= len(img_path):
             break
+        tfrec_file_name = base_file + str(count) + suffix
         with tf.compat.v1.python_io.TFRecordWriter(tfrec_file_name) as writer:
-            while idx < len(all_img_path):
-                path = all_img_path[idx]
-                label = all_img_labels[idx]
+            while idx < len(img_path):
+                path = img_path[idx]
+                label = img_labels[idx]
                 example = get_img_example(path, label)
                 writer.write(example.SerializeToString())
                 idx += 1
@@ -97,3 +113,7 @@ def build_multiple_tf_records(csv_path, train_dir):
                     count += 1
                     break
     
+if __name__ == '__main__':
+    csv_path = '/Volumes/Transcend/Data/hist/train_labels.csv'
+    train_dir = '/Volumes/Transcend/Data/hist/train/'
+    build_multiple_tf_records(csv_path, train_dir)
