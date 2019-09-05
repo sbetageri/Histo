@@ -1,3 +1,4 @@
+import sys
 import pathlib
 import tensorflow as tf
 import pandas as pd
@@ -114,6 +115,23 @@ def build_multiple_tf_records(csv_path, train_dir):
                     break
     
 if __name__ == '__main__':
-    csv_path = '/Volumes/Transcend/Data/hist/train_labels.csv'
-    train_dir = '/Volumes/Transcend/Data/hist/train/'
+    if len(sys.argv) > 1:
+        dev = sys.argv[1]
+    else:
+        print('Improper usage.')
+        print('Correct usage : $ python Dataset.py <device>')
+        print('<device> = mac/ub')
+        sys.exit(0)
+    
+    root_dir = '/Volumes/Transcend/Data/hist/'
+    
+    csv_path = root_dir + 'train_labels.csv'
+    train_dir = root_dir + 'train/'
+    
+    if dev != 'mac':
+        root_dir = '/home/srirakshith/Data/hist/'
+        
+    csv_path = root_dir + 'train_labels.csv'
+    train_dir = root_dir + 'train/'
+        
     build_multiple_tf_records(csv_path, train_dir)
