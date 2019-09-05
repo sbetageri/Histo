@@ -13,7 +13,7 @@ def preprocess_img(image):
     :rtype: Tensor
     '''
     image = tf.image.decode_jpeg(image)    
-    image = tf.image.resize(image, [32, 32])
+    image = tf.image.resize(image, [96, 96])
     image /= 255.0
     return image
 
