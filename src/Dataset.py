@@ -85,6 +85,24 @@ def get_img_example(img_path, img_label):
     }
     return tf.train.Example(features=tf.train.Features(feature=feature))
 
+def save_path_labels_to_csv(img_path, img_labels, csv_path):
+    df = pd.DataFrame({
+        'path' : img_path,
+        'label' : img_labels
+    })
+    df.to_csv(csv_path)
+
+def build_path_labels_map(csv_path, train_dir, path_label_csv_path):
+    img_label_df = pd.read_csv(csv_path)
+    img_path, img_labels = get_file_path_labels(img_label_df, train_dir)
+    save_path_labels_to_csv(img_path, img_labels, path_label_csv_path)
+
+def get_path_labels(path_label_csv_path):
+    df = pd.read_csv(path_label_csv_path)
+    img_path = df['path'].values[:]
+    img_labels = df['label'].values[:]
+    return img_path, img_labels
+
 def build_multiple_tf_records(csv_path, train_dir):
     '''Build multiple tf record files
     
@@ -93,8 +111,7 @@ def build_multiple_tf_records(csv_path, train_dir):
     :param train_dir: Training directory
     :type train_dir: String
     '''
-    img_label_df = pd.read_csv(csv_path)
-    img_path, img_labels = get_file_path_labels(img_label_df, train_dir)
+    img_path, img_labels = get_path_labels(csv_path)
     idx = 0
     base_file = 'hist_rec_'
     suffix = '.tfrec'
@@ -115,8 +132,12 @@ def build_multiple_tf_records(csv_path, train_dir):
                     break
     
 if __name__ == '__main__':
-    if len(sys.argv) > 1:
+    img_label_csv_path = None
+    if len(sys.argv) == 2:
         dev = sys.argv[1]
+    elif len(sys.argv) == 3:
+        dev = sys.argv[1]
+        img_label_csv_path = sys.argv[2]
     else:
         print('Improper usage.')
         print('Correct usage : $ python Dataset.py <device>')
@@ -133,5 +154,15 @@ if __name__ == '__main__':
         
     csv_path = root_dir + 'train_labels.csv'
     train_dir = root_dir + 'train/'
-        
-    build_multiple_tf_records(csv_path, train_dir)
+    
+    ## Check if path to labels file exists.
+    ## if exists, read from that and pass directly
+    ## else, build index
+    
+    if img_label_csv_path != None:
+        build_multiple_tf_records(img_label_csv_path, train_dir)
+    else:
+        img_label_csv_path = root_dir + 'img_labels_map.csv'
+        print('Building map.')
+        build_path_labels_map(csv_path, train_dir, img_label_csv_path)
+        build_multiple_tf_records(img_label_csv_path, train_dir)
