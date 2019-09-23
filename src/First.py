@@ -1,1 +1,0 @@
-print("Om Sai Ram")
