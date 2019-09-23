@@ -1,4 +1,7 @@
 import pathlib
+import Data
+import Dataset
+import Models
 import pandas as pd
 import numpy as np
 from PIL import Image
@@ -30,4 +33,8 @@ def get_stats(img_dir):
     print(min_dim)
 
 if __name__ == '__main__':
-   pass
+    df = pd.read_csv(Data.train_csv)
+    dataset = Dataset.HistDataset(df, Data.train_dir, Dataset.HistDataset.TRAIN_SET)
+    model = Models.get_base_model()
+
+
