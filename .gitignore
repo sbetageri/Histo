@@ -1,4 +1,6 @@
 .*.swp
 *.swp
 .ipynb_checkpoints
+data.py
 *.vscode/
+.idea/*
