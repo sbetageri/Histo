@@ -1,10 +1,14 @@
 import pathlib
 import Data
 import Dataset
+import datetime
 import Models
 import pandas as pd
 import numpy as np
+import tensorflow as tf
+
 from PIL import Image
+from sklearn.model_selection import train_test_split
 
 def get_stats(img_dir):
     p = pathlib.Path(img_dir)
@@ -34,7 +38,34 @@ def get_stats(img_dir):
 
 if __name__ == '__main__':
     df = pd.read_csv(Data.train_csv)
-    dataset = Dataset.HistDataset(df, Data.train_dir, Dataset.HistDataset.TRAIN_SET)
-    model = Models.get_base_model()
+    train_df, val_df = train_test_split(df, test_size=0.18)
+    train_dataset = Dataset.HistDataset(train_df, Data.train_dir, Dataset.HistDataset.TRAIN_SET)
+    val_dataset = Dataset.HistDataset(train_df, Data.train_dir, Dataset.HistDataset.VAL_SET)
+    model = Models.get_base_model((96, 96, 3))
 
+    loss_obj = tf.keras.losses.BinaryCrossentropy()
+    optimizer = tf.keras.optimizers.Adam()
+    accuracy = tf.keras.metrics.Accuracy()
+
+    early_stopping = tf.keras.callbacks.EarlyStopping(monitor='val_acc', patience=5)
+    reduce_lr = tf.keras.callbacks.ReduceLROnPlateau(monitor='val_loss', factor=0.2,
+                                  patience=3)
+    log_dir = "logs/fit/" + datetime.datetime.now().strftime("%Y%m%d-%H%M%S")
+
+    tensorboard_callback = tf.keras.callbacks.TensorBoard(log_dir=log_dir, histogram_freq=1)
+
+    model.compile(
+        optimizer=optimizer,
+        loss=loss_obj,
+        metrics=[accuracy]
+    )
+
+    model.fit_generator(
+        train_dataset,
+        validation_data=val_dataset,
+        epochs=1,
+        callbacks=[early_stopping, reduce_lr, tensorboard_callback]
+    )
+
+    model.save('base_model.h5')
 

@@ -12,7 +12,7 @@ class HistDataset(tf.keras.utils.Sequence):
         super(HistDataset, self).__init__()
         self.df = dataframe
         self.img_dir = img_dir
-        self.dataset_flat = dataset_flag
+        self.dataset_flag = dataset_flag
         self.batch_size = 4
         self.img_dim = img_dim
 
@@ -21,8 +21,8 @@ class HistDataset(tf.keras.utils.Sequence):
 
     def __getitem__(self, idx):
         data = self.df.iloc[idx]
-        img_id = data['id'].values[0]
-        label = data['label'].values[0]
+        img_id = data['id']
+        label = data['label']
 
         img = Image.open(self.img_dir + img_id + '.tif')
         img = img.resize(self.img_dim)
@@ -37,6 +37,10 @@ class HistDataset(tf.keras.utils.Sequence):
         ## Do we normalise all the images?
 
         labels = [label] * self.batch_size
+
+        if self.dataset_flag == HistDataset.TEST_SET:
+            t_imgs = tf.convert_to_tensor(imgs)
+            return t_imgs
 
         t_imgs = tf.convert_to_tensor(imgs)
         t_labels = tf.convert_to_tensor(labels)
