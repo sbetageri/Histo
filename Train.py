@@ -47,8 +47,8 @@ if __name__ == '__main__':
     optimizer = tf.keras.optimizers.Adam()
     accuracy = tf.keras.metrics.Accuracy()
 
-    early_stopping = tf.keras.callbacks.EarlyStopping(monitor='val_acc', patience=5)
-    reduce_lr = tf.keras.callbacks.ReduceLROnPlateau(monitor='val_loss', factor=0.2,
+    early_stopping = tf.keras.callbacks.EarlyStopping(monitor='val_accuracy', patience=5)
+    reduce_lr = tf.keras.callbacks.ReduceLROnPlateau(monitor='val_accuracy', factor=0.2,
                                   patience=3)
     log_dir = "logs/fit/" + datetime.datetime.now().strftime("%Y%m%d-%H%M%S")
 
