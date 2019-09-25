@@ -63,7 +63,7 @@ if __name__ == '__main__':
     model.fit_generator(
         train_dataset,
         validation_data=val_dataset,
-        epochs=1,
+        epochs=20,
         callbacks=[early_stopping, reduce_lr, tensorboard_callback]
     )
 
