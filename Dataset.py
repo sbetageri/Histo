@@ -1,6 +1,7 @@
 import tensorflow as tf
 import pandas as pd
 import numpy as np
+import math
 
 from PIL import Image
 
@@ -17,26 +18,34 @@ class HistDataset(tf.keras.utils.Sequence):
         self.img_dim = img_dim
 
     def __len__(self):
-        return len(self.df)
+        return math.ceil(len(self.df) / self.batch_size)
 
     def __getitem__(self, idx):
-        data = self.df.iloc[idx]
-        img_id = data['id']
-        label = data['label']
+        data = self.df.iloc[idx * self.batch_size : (idx + 1) * self.batch_size]
+        img_id = data['id'].values
+        labels = data['label'].values
 
-        img = Image.open(self.img_dir + img_id + '.tif')
-        img = img.resize(self.img_dim)
-        imgs = [
-            np.array(img.transpose(Image.FLIP_LEFT_RIGHT)),
-            np.array(img.transpose(Image.FLIP_TOP_BOTTOM)),
-            np.array(img.transpose(Image.ROTATE_90)),
-            np.array(img)
-        ]
+        imgs = []
+
+        for id in img_id:
+            path = self.img_dir + id + '.tif'
+            img = np.array(Image.open(path))
+            img = np.true_divide(img, 255.0)
+            imgs.append(img)
+
+        # img = Image.open(self.img_dir + img_id + '.tif')
+        # img = img.resize(self.img_dim)
+        # imgs = [
+        #     np.array(img.transpose(Image.FLIP_LEFT_RIGHT)),
+        #     np.array(img.transpose(Image.FLIP_TOP_BOTTOM)),
+        #     np.array(img.transpose(Image.ROTATE_90)),
+        #     np.array(img)
+        # ]
 
         ## ToDo
         ## Do we normalise all the images?
 
-        labels = [label] * self.batch_size
+        # labels = [label] * self.batch_size
 
         if self.dataset_flag == HistDataset.TEST_SET:
             t_imgs = tf.convert_to_tensor(imgs)
