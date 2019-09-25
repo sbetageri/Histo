@@ -44,7 +44,7 @@ if __name__ == '__main__':
     model = Models.get_resnet_model()
 
     loss_obj = tf.keras.losses.BinaryCrossentropy()
-    optimizer = tf.keras.optimizers.Adam()
+    optimizer = tf.keras.optimizers.Adam(1e-5)
     accuracy = tf.keras.metrics.Accuracy()
 
     early_stopping = tf.keras.callbacks.EarlyStopping(monitor='val_accuracy', patience=5)
