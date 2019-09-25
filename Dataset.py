@@ -29,9 +29,9 @@ class HistDataset(tf.keras.utils.Sequence):
 
         for id in img_id:
             path = self.img_dir + id + '.tif'
-            img = np.array(Image.open(path))
-            img = np.true_divide(img, 255.0)
-            
+            img = np.array(Image.open(path), dtype=np.float)
+            img = tf.image.per_image_standardization(img)
+
             imgs.append(img)
 
         # img = Image.open(self.img_dir + img_id + '.tif')
