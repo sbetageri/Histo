@@ -18,10 +18,10 @@ def get_base_model(input_shape):
     return model
 
 
-def get_resnet_model():
+def get_resnet_model(input_shape):
     resnet_base = tf.keras.applications.ResNet50(include_top=False, weights='imagenet')
     model = tf.keras.Sequential()
-    model.add(tf.keras.layers.ZeroPadding2D(padding=(2,2)))
+    model.add(tf.keras.layers.InputLayer(input_shape=input_shape))
     model.add(resnet_base)
     model.add(tf.keras.layers.Flatten())
     model.add(tf.keras.layers.Dense(1, activation='sigmoid'))
