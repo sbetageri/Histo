@@ -20,6 +20,7 @@ def get_base_model(input_shape):
 
 def get_resnet_model(input_shape):
     resnet_base = tf.keras.applications.ResNet50(include_top=False, weights='imagenet')
+    resnet_base.trainable = False
     model = tf.keras.Sequential()
     model.add(tf.keras.layers.InputLayer(input_shape=input_shape))
     model.add(resnet_base)
