@@ -41,7 +41,7 @@ if __name__ == '__main__':
     train_df, val_df = train_test_split(df, test_size=0.18)
     train_dataset = Dataset.HistDataset(train_df, Data.train_dir, Dataset.HistDataset.TRAIN_SET)
     val_dataset = Dataset.HistDataset(train_df, Data.train_dir, Dataset.HistDataset.VAL_SET)
-    model = Models.get_base_model((96, 96, 3))
+    model = Models.get_resnet_model()
 
     loss_obj = tf.keras.losses.BinaryCrossentropy()
     optimizer = tf.keras.optimizers.Adam()
