@@ -14,7 +14,7 @@ class HistDataset(tf.keras.utils.Sequence):
         self.df = dataframe
         self.img_dir = img_dir
         self.dataset_flag = dataset_flag
-        self.batch_size = 4
+        self.batch_size = 2
         self.img_dim = img_dim
 
     def __len__(self):

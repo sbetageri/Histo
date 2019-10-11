@@ -20,11 +20,6 @@ class ResNet(tf.keras.Model):
 
         self.pool_block3 = Block(128, pool=True)
 
-        self.r_block7 = Block(128)
-        self.r_block8 = Block(128)
-
-        self.pool_block4 = Block(256, pool=True)
-
         self.flatten = tf.keras.layers.Flatten()
         self.dense = tf.keras.layers.Dense(1, activation='sigmoid')
 
@@ -41,9 +36,6 @@ class ResNet(tf.keras.Model):
         x = self.r_block5(x)
         x = self.r_block6(x)
         x = self.pool_block3(x)
-        x = self.r_block7(x)
-        x = self.r_block8(x)
-        x = self.pool_block4(x)
 
         x = self.flatten(x)
         x = self.dense(x)
