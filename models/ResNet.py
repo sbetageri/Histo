@@ -5,21 +5,20 @@ class ResNet(tf.keras.Model):
     def __init__(self):
         super(ResNet, self).__init__()
         self.conv = tf.keras.layers.Conv2D(filters=32, kernel_size=5)
-        self.r_block1 = Block()
-        self.r_block2 = Block()
+        self.r_block1 = Block(64)
+        self.r_block2 = Block(64)
 
-        self.pool_block1 = Block(pool=True)
-        self.r_block3 = Block()
-        self.r_block4 = Block()
+        self.pool_block1 = Block(128, pool=True)
 
-        self.pool_block2 = Block(filters=64, pool=True)
-        self.r_block5 = Block(filters=64)
-        self.r_block6 = Block(filters=64)
+        self.r_block3 = Block(128)
+        self.r_block4 = Block(128)
 
-        self.pool_block3 = Block(filters=128, pool=True)
-        self.r_block7 = Block(filters=128)
-        self.r_block8 = Block(filters=128)
-        self.pool_block4 = Block(filters=128, pool=True)
+        self.pool_block2 = Block(256, pool=True)
+
+        self.r_block5 = Block(256)
+        self.r_block6 = Block(256)
+
+        self.pool_block3 = Block(512, pool=True)
 
         self.flatten = tf.keras.layers.Flatten()
         self.dense = tf.keras.layers.Dense(1, activation='sigmoid')
@@ -36,11 +35,7 @@ class ResNet(tf.keras.Model):
         x = self.pool_block2(x)
         x = self.r_block5(x)
         x = self.r_block6(x)
-
         x = self.pool_block3(x)
-        x = self.r_block7(x)
-        x = self.r_block8(x)
-        x = self.pool_block4(x)
 
         x = self.flatten(x)
         x = self.dense(x)
