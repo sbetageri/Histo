@@ -38,10 +38,10 @@ def get_stats(img_dir):
     print(min_dim)
 
 if __name__ == '__main__':
-    df = pd.read_csv(Data.train_csv)[:20]
-    train_df, val_df = train_test_split(df, test_size=0.18)
+    df = pd.read_csv(Data.train_csv)
+    train_df, val_df = train_test_split(df, test_size=0.15)
 
-    test_df = pd.read_csv(Data.test_csv)[:9]
+    test_df = pd.read_csv(Data.test_csv)
 
     train_dataset = Dataset.HistDataset(train_df, Data.train_dir, Dataset.HistDataset.TRAIN_SET)
     val_dataset = Dataset.HistDataset(train_df, Data.train_dir, Dataset.HistDataset.VAL_SET)
