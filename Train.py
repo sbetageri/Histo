@@ -9,6 +9,7 @@ import tensorflow as tf
 
 from PIL import Image
 from sklearn.model_selection import train_test_split
+from models.ResNet import ResNet
 
 def get_stats(img_dir):
     p = pathlib.Path(img_dir)
@@ -46,10 +47,11 @@ if __name__ == '__main__':
     val_dataset = Dataset.HistDataset(train_df, Data.train_dir, Dataset.HistDataset.VAL_SET)
     test_dataset = Dataset.HistDataset(test_df, Data.test_dir, Dataset.HistDataset.TEST_SET)
 
-    model = Models.get_resnet_model((224, 224, 3))
+    # model = Models.get_resnet_model((224, 224, 3))
+    model = ResNet()
 
     loss_obj = tf.keras.losses.BinaryCrossentropy()
-    optimizer = tf.keras.optimizers.Adam(1e-4)
+    optimizer = tf.keras.optimizers.Adam(1e-3)
     accuracy = tf.keras.metrics.Accuracy()
 
     early_stopping = tf.keras.callbacks.EarlyStopping(monitor='val_accuracy', patience=5)
@@ -68,11 +70,12 @@ if __name__ == '__main__':
     model.fit_generator(
         train_dataset,
         validation_data=val_dataset,
-        epochs=20,
+        epochs=1,
         callbacks=[early_stopping, reduce_lr, tensorboard_callback]
     )
 
-    model.save('base_model.h5')
+    # model.save('base_model.h5')
+    model.save_weights('model_weights/resnet_8', save_format='tf')
 
     res = model.predict_generator(
         test_dataset
