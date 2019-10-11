@@ -30,7 +30,6 @@ class HistDataset(tf.keras.utils.Sequence):
         for id in img_id:
             path = self.img_dir + id + '.tif'
             img = Image.open(path)
-            img = img.resize((224, 224))
             img = np.array(img, dtype=np.float)
             img = tf.image.per_image_standardization(img)
 
