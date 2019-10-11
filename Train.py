@@ -37,14 +37,19 @@ def get_stats(img_dir):
     print(min_dim)
 
 if __name__ == '__main__':
-    df = pd.read_csv(Data.train_csv)
+    df = pd.read_csv(Data.train_csv)[:20]
     train_df, val_df = train_test_split(df, test_size=0.18)
+
+    test_df = pd.read_csv(Data.test_csv)[:9]
+
     train_dataset = Dataset.HistDataset(train_df, Data.train_dir, Dataset.HistDataset.TRAIN_SET)
     val_dataset = Dataset.HistDataset(train_df, Data.train_dir, Dataset.HistDataset.VAL_SET)
+    test_dataset = Dataset.HistDataset(test_df, Data.test_dir, Dataset.HistDataset.TEST_SET)
+
     model = Models.get_resnet_model((224, 224, 3))
 
     loss_obj = tf.keras.losses.BinaryCrossentropy()
-    optimizer = tf.keras.optimizers.Adam()
+    optimizer = tf.keras.optimizers.Adam(1e-4)
     accuracy = tf.keras.metrics.Accuracy()
 
     early_stopping = tf.keras.callbacks.EarlyStopping(monitor='val_accuracy', patience=5)
@@ -68,4 +73,11 @@ if __name__ == '__main__':
     )
 
     model.save('base_model.h5')
+
+    res = model.predict_generator(
+        test_dataset
+    )
+
+    test_df['label'] = res
+    test_df.to_csv('testing.csv', index=False)
 
